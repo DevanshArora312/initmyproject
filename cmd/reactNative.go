@@ -20,7 +20,7 @@ var reactNativeCmd = &cobra.Command{
 			"RN + Navigatons only",
 			"RN + NativeWind + Navigations only",
 			"Fully configured with essential modules",
-			"Fully configured with essential modules + Redux"}))
+			"Fully configured with essential modules + Redux"}, "reactNative"))
 		if _, err := Program.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)
