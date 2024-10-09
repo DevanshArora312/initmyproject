@@ -18,6 +18,7 @@ type model struct {
 	successMessage string
 	quitFlag       bool
 	errorMessage   string
+	done           bool
 }
 
 type installDoneMsg struct{}
@@ -53,6 +54,9 @@ func (m model) Init() tea.Cmd {
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		if m.done {
+			return m, nil
+		}
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
@@ -65,6 +69,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor++
 			}
 		case "enter":
+			m.done = true
 			return m, m.installDependencies(m.choices[m.cursor])
 		}
 	case installDoneMsg:
