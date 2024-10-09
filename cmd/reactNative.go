@@ -14,11 +14,18 @@ var reactNativeCmd = &cobra.Command{
 	Long:  `Creates a React Native CLI project with several optional dependencies such as nativewind, navigation packages etc`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("reactNative called")
-		p := tea.NewProgram(initialModel([]string{"Bare Project", "RN + NativeWind only", "RN + Navigatons only", "RN + NativeWind + Navigations only", "Fully configured with essential modules", "Fully configured with essential modules + Redux"}))
-		if _, err := p.Run(); err != nil {
+		Program = tea.NewProgram(initialModel([]string{
+			"Base Project",
+			"RN + NativeWind only",
+			"RN + Navigatons only",
+			"RN + NativeWind + Navigations only",
+			"Fully configured with essential modules",
+			"Fully configured with essential modules + Redux"}))
+		if _, err := Program.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)
 		}
+
 	},
 }
 

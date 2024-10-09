@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"fmt"
+	"time"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -9,7 +12,10 @@ type model struct {
 	choices  []string
 	cursor   int
 	selected map[int]struct{}
+	done     bool
 }
+
+var Program *tea.Program
 
 var (
 	titleStyle = lipgloss.NewStyle().
@@ -18,7 +24,7 @@ var (
 			Underline(true)
 
 	normalTextStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("7"))
+			Foreground(lipgloss.Color("6"))
 
 	selectedTextStyle = lipgloss.NewStyle().
 				Bold(true).
@@ -31,6 +37,9 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if m.done {
+		return m, nil
+	}
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -45,37 +54,63 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor++
 			}
 		case "enter":
-			_, ok := m.selected[m.cursor]
-			if ok {
-				delete(m.selected, m.cursor)
-			} else {
-				m.selected[m.cursor] = struct{}{}
-			}
+			m.done = true
+			return m, installDependencies(m.choices[m.cursor])
 		}
+
+		return m, nil
 	}
 	return m, nil
 }
 
+type installDoneMsg struct{}
+
+func installDependencies(option string) tea.Cmd {
+	return func() tea.Msg {
+		fmt.Printf("Installing dependencies for %s...\n", option)
+		time.Sleep(2 * time.Second)
+		fmt.Println("Dependencies installed!")
+		Program.Quit()
+		return installDoneMsg{}
+	}
+}
+
 func (m model) View() string {
 	s := titleStyle.Render("Select an option (use arrow keys and press enter):") + "\n\n"
-
+	cursor := " "
 	for i, choice := range m.choices {
 		var itemStyle lipgloss.Style
 		if m.cursor == i {
+			cursor = ">"
 			itemStyle = selectedTextStyle // Apply style for the selected item
 		} else {
-			itemStyle = normalTextStyle // Apply default style
+			itemStyle = normalTextStyle
+			cursor = " "
 		}
-		s += itemStyle.Render(choice) + "\n"
+		s += itemStyle.Render(fmt.Sprintf("%s %s", cursor, choice)) + "\n"
 	}
 
-	s += "\n" + normalTextStyle.Render("Press q to quit.") + "\n"
+	s += "\n" + lipgloss.NewStyle().Foreground(lipgloss.Color("7")).Render("Press q to quit.") + "\n"
 	return s
 }
 
 func initialModel(opts []string) model {
 	return model{
 		choices:  opts,
+		done:     false,
 		selected: make(map[int]struct{}),
 	}
 }
+
+// func installDependencies(index int) {
+// 	switch index {
+// 	case 0:
+// 		fmt.Println("0")
+// 	case 1:
+// 		fmt.Println("1")
+// 	case 2:
+// 		fmt.Println("2")
+// 	default:
+// 		fmt.Println("3")
+// 	}
+// }
