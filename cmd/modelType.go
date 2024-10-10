@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"os"
+	// "os"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -22,8 +22,7 @@ type model struct {
 }
 
 type installDoneMsg struct{}
-type installError struct{}
-type keyboardInterrupt struct{}
+type installError struct{ errMsg string }
 
 var Program *tea.Program
 
@@ -47,60 +46,15 @@ var (
 			Bold(true).Underline(true).Foreground(lipgloss.Color("10"))
 )
 
-func (m model) Init() tea.Cmd {
-	return nil
-}
-
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		if m.done {
-			return m, nil
-		}
-		switch msg.String() {
-		case "ctrl+c", "q":
-			return m, tea.Quit
-		case "up":
-			if m.cursor > 0 {
-				m.cursor--
-			}
-		case "down":
-			if m.cursor < len(m.choices)-1 {
-				m.cursor++
-			}
-		case "enter":
-			m.done = true
-			return m, m.installDependencies(m.choices[m.cursor])
-		}
-	case installDoneMsg:
-		m.successMessage = "\n\nDependencies installed!"
-		m.quitFlag = true
-		return m, nil
-	case installError:
-		m.errorMessage = "\n\nError Occured while generating!"
-		m.quitFlag = true
-		return m, nil
-	case keyboardInterrupt:
-		os.Exit(0)
-	}
-	if m.quitFlag {
-
-		return m, tea.Quit
-	}
-	return m, nil
-}
-
 func (m model) installDependencies(option string) tea.Cmd {
 	return func() tea.Msg {
 		fmt.Printf("Installing dependencies for %s...\n", option)
-		// time.Sleep(2 * time.Second)
 		switch m.command {
 		case "mern":
 			fmt.Println("hello there")
 		case "nodeBackend":
 			if err := nodeBackendFunction(m.cursor); err != nil {
-				fmt.Println("Error gen")
-				return installError{}
+				return installError{errMsg: err.Error()}
 			}
 		case "reactNative":
 			fmt.Println("hello there rn")
@@ -112,6 +66,57 @@ func (m model) installDependencies(option string) tea.Cmd {
 		// Program.Quit()
 		return installDoneMsg{}
 	}
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "ctrl+c", "q":
+			if m.done {
+				for _, proc := range activeProcesses {
+					if proc.Process != nil {
+						err := proc.Process.Kill()
+						if err != nil {
+							fmt.Println("Failed to kill process:", err)
+						} else {
+							fmt.Println("Process killed successfully")
+						}
+					}
+				}
+			}
+			return m, tea.Quit
+		case "up":
+			if m.cursor > 0 && !m.done {
+				m.cursor--
+			}
+		case "down":
+			if m.cursor < len(m.choices)-1 && !m.done {
+				m.cursor++
+			}
+		case "enter":
+			if m.done {
+				return m, nil
+			}
+			m.done = true
+			return m, m.installDependencies(m.choices[m.cursor])
+		}
+	case installDoneMsg:
+		m.successMessage = "\n\nDependencies installed!"
+		m.quitFlag = true
+		return m, nil
+	case installError:
+		m.errorMessage = "\n\n" + "ERROR: " + msg.errMsg
+		// "Error Occured while generating!"
+		m.quitFlag = true
+		return m, nil
+
+	}
+	if m.quitFlag {
+
+		return m, tea.Quit
+	}
+	return m, nil
 }
 
 func (m model) View() string {
@@ -147,4 +152,8 @@ func initialModel(opts []string, _command string) model {
 		selected: make(map[int]struct{}),
 		command:  _command,
 	}
+}
+
+func (m model) Init() tea.Cmd {
+	return nil
 }
