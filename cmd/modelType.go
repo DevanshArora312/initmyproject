@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+
 	// "os"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -107,11 +108,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, m.installDependencies(m.choices[m.cursor])
 		}
 	case installDoneMsg:
-		m.successMessage = "\n\nDependencies installed!"
+		m.successMessage = "\n\nDependencies installed!\n\n"
 		m.quitFlag = true
 		return m, nil
 	case installError:
-		m.errorMessage = "\n\n" + "ERROR: " + msg.errMsg
+		m.errorMessage = "\n\n" + "ERROR: " + msg.errMsg + "\n\n"
 		// "Error Occured while generating!"
 		m.quitFlag = true
 		return m, nil
@@ -128,7 +129,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	}
 	if m.quitFlag {
-
+		fmt.Print("\033[A\033[K")
 		return m, tea.Quit
 	}
 	return m, nil

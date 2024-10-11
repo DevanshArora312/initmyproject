@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -18,8 +17,6 @@ type commandType struct {
 
 var cwd string
 
-// var Comm *exec.Cmd
-
 func executeCommand(command commandType) error {
 	var cmd *exec.Cmd
 	if runtime.GOOS == "windows" {
@@ -27,8 +24,6 @@ func executeCommand(command commandType) error {
 	} else {
 		cmd = exec.Command("bash", "-c", command.command) // Unix shell
 	}
-	// Comm = cmd
-	// cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	activeProcesses = append(activeProcesses, cmd)
 	if err := cmd.Run(); err != nil {
@@ -54,7 +49,6 @@ func executeGeneral(commands []commandType) error {
 			}
 		case "cd":
 			if err := os.Chdir(cwd + one.command); err != nil {
-				// fmt.Print(cwd + one.command)
 				return err
 			}
 		case "exec":
@@ -63,14 +57,14 @@ func executeGeneral(commands []commandType) error {
 			if err := executeCommand(one); err != nil {
 				return err
 			} else {
-				// fmt.Println("Done")
 				Program.Send(logMsg{msg: "Executing: " + one.command + "...Done", remove: true})
 			}
 		case "write":
-			fmt.Println("Writing to file:", one.command)
+			Program.Send(logMsg{msg: "Writing to file : " + one.command + "...", remove: false})
 			if err := os.WriteFile(one.command, []byte(one.content), 0644); err != nil {
 				return err
 			}
+			Program.Send(logMsg{msg: "Writing to file : " + one.command + "...Done", remove: true})
 		}
 
 	}
@@ -87,22 +81,32 @@ func nodeBackendFunction(index int) error {
 	commands := []commandType{
 		{command: "server", typ: "mkdir"},
 		{command: "/server", typ: "cd"},
-		{command: "echo console.log(`Hellow`); > test.js", typ: "exec"},
 		{command: "npm init -y", typ: "exec"},
 		{command: "npm install express", typ: "exec"},
 		{command: "npm install dotenv", typ: "exec"},
 		{command: "npm install cors", typ: "exec"},
+		{command: "npm install jsonwebtoken", typ: "exec"},
 		{command: "npm install mongoose", typ: "exec"},
 		{command: "models", typ: "mkdir"},
 		{command: "controllers", typ: "mkdir"},
 		{command: "routes", typ: "mkdir"},
 		{command: "config", typ: "mkdir"},
+		{command: ".env", typ: "write", content: Env},
 		{command: "/server/config", typ: "cd"},
-		// {command: "type console.log('Hellow') > database.js", typ: "exec"},
+		{command: "database.js", typ: "write", content: Database},
+		{command: "/server", typ: "cd"},
+		{command: ".gitignore", typ: "write", content: GitIgn},
+		{command: "index.js", typ: "write", content: ServerData},
 	}
 
 	switch index {
 	case 0:
+		return executeGeneral(commands[:3])
+	case 1:
+		return executeGeneral(commands[:7])
+	case 2:
+		return executeGeneral(commands[:8])
+	case 3:
 		return executeGeneral(commands)
 	}
 	return nil
