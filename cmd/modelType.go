@@ -8,8 +8,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var InstallMinorError string
-
 type model struct {
 	choices        []string
 	cursor         int
@@ -19,8 +17,13 @@ type model struct {
 	quitFlag       bool
 	errorMessage   string
 	done           bool
+	progressString []string
 }
 
+type logMsg struct {
+	msg    string
+	remove bool
+}
 type installDoneMsg struct{}
 type installError struct{ errMsg string }
 
@@ -48,7 +51,7 @@ var (
 
 func (m model) installDependencies(option string) tea.Cmd {
 	return func() tea.Msg {
-		fmt.Printf("Installing dependencies for %s...\n", option)
+		Program.Send(logMsg{msg: fmt.Sprintf("Installing dependencies for %s...\n", option), remove: true})
 		switch m.command {
 		case "mern":
 			fmt.Println("hello there")
@@ -84,6 +87,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						}
 					}
 				}
+				fmt.Println("\033[A\033[K")
+				fmt.Print("\033[A\033[K")
 			}
 			return m, tea.Quit
 		case "up":
@@ -109,6 +114,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.errorMessage = "\n\n" + "ERROR: " + msg.errMsg
 		// "Error Occured while generating!"
 		m.quitFlag = true
+		return m, nil
+	case logMsg:
+		if msg.remove {
+			if len(m.progressString) > 0 {
+				m.progressString = m.progressString[:len(m.progressString)-1]
+			}
+			m.progressString = append(m.progressString, lipgloss.NewStyle().Foreground(lipgloss.Color("8")).Render(msg.msg))
+		} else {
+			m.progressString = append(m.progressString, lipgloss.NewStyle().Foreground(lipgloss.Color("3")).Render(msg.msg))
+		}
 		return m, nil
 
 	}
@@ -136,21 +151,24 @@ func (m model) View() string {
 
 	s += "\n" + lipgloss.NewStyle().Foreground(lipgloss.Color("7")).Render("Press q to quit.") + "\n"
 
+	for _, v := range m.progressString {
+		s += (v + "\n")
+	}
 	if m.successMessage != "" {
-		s = successStyles.Render(m.successMessage) + "\n"
-		s += InstallMinorError
-
+		s += successStyles.Render(m.successMessage) + "\n"
 	} else if m.errorMessage != "" {
-		s = ErrorStyles.Render(m.errorMessage) + "\n"
+		s += ErrorStyles.Render(m.errorMessage) + "\n"
 	}
 	return s
 }
 
 func initialModel(opts []string, _command string) model {
 	return model{
-		choices:  opts,
-		selected: make(map[int]struct{}),
-		command:  _command,
+		choices:        opts,
+		selected:       make(map[int]struct{}),
+		command:        _command,
+		done:           false,
+		progressString: []string{},
 	}
 }
 

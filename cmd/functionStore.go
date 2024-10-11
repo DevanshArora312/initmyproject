@@ -54,16 +54,17 @@ func executeGeneral(commands []commandType) error {
 			}
 		case "cd":
 			if err := os.Chdir(cwd + one.command); err != nil {
-				fmt.Print(cwd + one.command)
+				// fmt.Print(cwd + one.command)
 				return err
 			}
 		case "exec":
-			fmt.Print("Executing: " + one.command + "...")
+			Program.Send(logMsg{msg: "Executing: " + one.command + "...", remove: false})
+
 			if err := executeCommand(one); err != nil {
 				return err
 			} else {
-				fmt.Println("Done")
-
+				// fmt.Println("Done")
+				Program.Send(logMsg{msg: "Executing: " + one.command + "...Done", remove: true})
 			}
 		case "write":
 			fmt.Println("Writing to file:", one.command)
