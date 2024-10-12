@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -65,6 +66,21 @@ func executeGeneral(commands []commandType) error {
 				return err
 			}
 			Program.Send(logMsg{msg: "Writing to file : " + one.command + "...Done", remove: true})
+		case "prepend":
+			Program.Send(logMsg{msg: "Prepending headers to file : " + one.command + "...", remove: false})
+			existingContent, err := os.ReadFile(one.command)
+			if err != nil {
+				return fmt.Errorf("failed to read file: %w", err)
+			}
+			// Combine the new content with the existing content
+			newContent := []byte(one.content + string(existingContent))
+			// Write the combined content back to the file
+			if err := os.WriteFile(one.command, newContent, 0644); err != nil {
+				return fmt.Errorf("failed to write to file: %w", err)
+			}
+
+			Program.Send(logMsg{msg: "Prepending headers to file : " + one.command + "...Done", remove: true})
+
 		}
 
 	}
@@ -78,7 +94,7 @@ func nodeBackendFunction(index int) error {
 		log.Fatal(err)
 	}
 
-	commands := backendCommands
+	commands := backendCommands("server")
 
 	switch index {
 	case 0:
@@ -106,13 +122,104 @@ func reactNativeFunc(index int, name string) error {
 	case 0:
 		return executeGeneral(commands[:6])
 	case 1:
-		return executeGeneral(commands[:12])
+		return executeGeneral(commands[:13])
 	case 2:
-		return executeGeneral(commands[:18])
+		return executeGeneral(commands[:19])
 	case 3:
-		return executeGeneral(commands[:29])
+		return executeGeneral(commands[:30])
 	case 4:
 		return executeGeneral(commands)
+	}
+	return nil
+}
+
+func reactFunc(index int, name string) error {
+	var err error
+	cwd, err = os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	commands := reactCommands(name)
+
+	switch index {
+	case 0:
+		return executeGeneral(commands[:4])
+	case 1:
+		return executeGeneral(commands[:12])
+	case 2:
+		return executeGeneral(commands[:21])
+	case 3:
+		return executeGeneral(commands)
+	case 4:
+		var mui = commandType{command: "npm install @mui/material @emotion/react @emotion/styled @fontsource/roboto @mui/icons-material", typ: "exec"}
+		newComm := append(commands, mui)
+		return executeGeneral(newComm)
+	case 5:
+		var antd = commandType{command: "npm install antd --save", typ: "exec"}
+		newComm := append(commands, antd)
+		return executeGeneral(newComm)
+	case 6:
+		var shadcn = []commandType{
+			{command: "", typ: "exec"},
+		}
+		newComm := append(commands, shadcn...)
+		return executeGeneral(newComm)
+
+	}
+	return nil
+}
+
+func mernFunc(index int, name string) error {
+	var err error
+	cwd, err = os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	reactCommands, backCommands := mernCommands(name)
+	var commands = []commandType{
+		{command: name, typ: "mkdir"},
+		{command: "/" + name, typ: "cd"},
+	}
+	switch index {
+	case 0:
+		commands = append(commands, reactCommands[:4]...)
+		commands = append(commands, commandType{command: "/" + name, typ: "cd"})
+		commands = append(commands, backCommands[:3]...)
+		return executeGeneral(commands)
+	case 1:
+		commands = append(commands, reactCommands[:21]...)
+		commands = append(commands, commandType{command: "/" + name, typ: "cd"})
+		commands = append(commands, backCommands...)
+		return executeGeneral(commands)
+	case 2:
+		commands = append(commands, reactCommands...)
+		commands = append(commands, commandType{command: "/" + name, typ: "cd"})
+		commands = append(commands, backCommands...)
+		return executeGeneral(commands)
+	case 3:
+		commands = append(commands, reactCommands...)
+		commands := append(commands, commandType{command: "npm install @mui/material @emotion/react @emotion/styled @fontsource/roboto @mui/icons-material", typ: "exec"})
+		commands = append(commands, commandType{command: "/" + name, typ: "cd"})
+		commands = append(commands, backCommands...)
+		return executeGeneral(commands)
+	case 4:
+		commands = append(commands, reactCommands...)
+		commands := append(commands, commandType{command: "npm install antd --save", typ: "exec"})
+		commands = append(commands, commandType{command: "/" + name, typ: "cd"})
+		commands = append(commands, backCommands...)
+		return executeGeneral(commands)
+	case 5:
+		commands = append(commands, reactCommands...)
+		var shadcn = []commandType{
+			{command: "", typ: "exec"},
+		}
+		commands := append(commands, shadcn...)
+		commands = append(commands, commandType{command: "/" + name, typ: "cd"})
+		commands = append(commands, backCommands...)
+		return executeGeneral(commands)
+
 	}
 	return nil
 }

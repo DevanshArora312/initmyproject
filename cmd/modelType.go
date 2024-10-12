@@ -56,7 +56,9 @@ func (m model) installDependencies(option string) tea.Cmd {
 		Program.Send(logMsg{msg: fmt.Sprintf("Installing dependencies for %s...\n", option), remove: true})
 		switch m.command {
 		case "mern":
-			fmt.Println("hello there")
+			if err := mernFunc(m.cursor, "myProject"); err != nil {
+				return installError{errMsg: err.Error()}
+			}
 		case "nodeBackend":
 			if err := nodeBackendFunction(m.cursor); err != nil {
 				return installError{errMsg: err.Error()}
@@ -68,8 +70,9 @@ func (m model) installDependencies(option string) tea.Cmd {
 				return installError{errMsg: err.Error()}
 			}
 		case "react":
-			fmt.Println("hello there react")
-
+			if err := reactFunc(m.cursor, "myproject"); err != nil {
+				return installError{errMsg: err.Error()}
+			}
 		}
 
 		// Program.Quit()

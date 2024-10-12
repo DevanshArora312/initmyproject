@@ -1,4 +1,4 @@
-package cmd
+package contentstore
 
 var Database = `require("dotenv").config();
 const mongoose = require("mongoose");

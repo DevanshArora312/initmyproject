@@ -1,4 +1,4 @@
-package cmd
+package contentstore
 
 var TWConfig = `// tailwind.config.js
 
@@ -44,19 +44,19 @@ var BabelFull = `module.exports = {
     'react-native-reanimated/plugin'],
 };
 `
-var envdts = `declare module '@env' {
+var Envdts = `declare module '@env' {
     export const BASE_URL: string;
     
  }`
 
-var esConfig = `// eslint.config.js
+var EsConfig = `// eslint.config.js
 // export default [
 //     {
 //         // ignores: [".config/"]
 //     }
 // ];`
 
-var buildGradel = `apply plugin: "com.android.application"
+var BuildGradel = `apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
@@ -174,7 +174,7 @@ dependencies {
     }
 }
 `
-var store = `import { configureStore } from '@reduxjs/toolkit';
+var Store = `import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch as useAppDispatch, useSelector as useAppSelector } from 'react-redux';
 import { persistStore, persistReducer } from 'redux-persist';
 import { rootPersistConfig, rootReducer } from './root_reducers.js';
@@ -194,7 +194,7 @@ const useSelector = useAppSelector;
 const useDispatch = () => useAppDispatch();
 export {store, persistor, dispatch,useSelector,useDispatch};`
 
-var rootRed = `import { combineReducers } from 'redux';
+var RootRed = `import { combineReducers } from 'redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import tempReducer from './slices/temp';
 
@@ -212,7 +212,7 @@ const rootReducer = combineReducers({
 
 export { rootPersistConfig,rootReducer};`
 
-var tempSlice = `import { createSlice } from "@reduxjs/toolkit";
+var TempSlice = `import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     temp : {}
@@ -233,7 +233,7 @@ const slice = createSlice({
 export const {setTemp} = slice.actions;
 export default slice.reducer;`
 
-var tsConfig = `{
+var TsConfig = `{
   "extends": "@react-native/typescript-config/tsconfig.json",
   "compilerOptions": {
     "target": "es6",
