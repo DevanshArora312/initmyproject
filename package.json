@@ -1,0 +1,16 @@
+{
+  "name": "initmyproject",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "gox -osarch=\"windows/amd64 linux/amd64 darwin/amd64\" -output=\"bin/initmyproject-{{.OS}}-{{.Arch}}\""
+  },
+  "bin": {
+    "initmyproject": "./index.js"
+  },
+  "keywords": [],
+  "author": "Devansh",
+  "license": "ISC",
+  "description": ""
+}
