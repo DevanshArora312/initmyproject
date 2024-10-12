@@ -17,7 +17,6 @@ var reactNativeCmd = &cobra.Command{
 		Program = tea.NewProgram(initialModel([]string{
 			"Base Project",
 			"RN + NativeWind only",
-			"RN + Navigatons only",
 			"RN + NativeWind + Navigations only",
 			"Fully configured with essential modules",
 			"Fully configured with essential modules + Redux"}, "reactNative"))

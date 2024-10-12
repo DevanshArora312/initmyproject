@@ -78,26 +78,7 @@ func nodeBackendFunction(index int) error {
 		log.Fatal(err)
 	}
 
-	commands := []commandType{
-		{command: "server", typ: "mkdir"},
-		{command: "/server", typ: "cd"},
-		{command: "npm init -y", typ: "exec"},
-		{command: "npm install express", typ: "exec"},
-		{command: "npm install dotenv", typ: "exec"},
-		{command: "npm install cors", typ: "exec"},
-		{command: "npm install jsonwebtoken", typ: "exec"},
-		{command: "npm install mongoose", typ: "exec"},
-		{command: "models", typ: "mkdir"},
-		{command: "controllers", typ: "mkdir"},
-		{command: "routes", typ: "mkdir"},
-		{command: "config", typ: "mkdir"},
-		{command: ".env", typ: "write", content: Env},
-		{command: "/server/config", typ: "cd"},
-		{command: "database.js", typ: "write", content: Database},
-		{command: "/server", typ: "cd"},
-		{command: ".gitignore", typ: "write", content: GitIgn},
-		{command: "index.js", typ: "write", content: ServerData},
-	}
+	commands := backendCommands
 
 	switch index {
 	case 0:
@@ -107,6 +88,30 @@ func nodeBackendFunction(index int) error {
 	case 2:
 		return executeGeneral(commands[:8])
 	case 3:
+		return executeGeneral(commands)
+	}
+	return nil
+}
+
+func reactNativeFunc(index int, name string) error {
+	var err error
+	cwd, err = os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	commands := reactNativeCommands(name)
+
+	switch index {
+	case 0:
+		return executeGeneral(commands[:6])
+	case 1:
+		return executeGeneral(commands[:12])
+	case 2:
+		return executeGeneral(commands[:18])
+	case 3:
+		return executeGeneral(commands[:29])
+	case 4:
 		return executeGeneral(commands)
 	}
 	return nil

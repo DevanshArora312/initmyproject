@@ -19,6 +19,7 @@ type model struct {
 	errorMessage   string
 	done           bool
 	progressString []string
+	input          string
 }
 
 type logMsg struct {
@@ -61,7 +62,11 @@ func (m model) installDependencies(option string) tea.Cmd {
 				return installError{errMsg: err.Error()}
 			}
 		case "reactNative":
-			fmt.Println("hello there rn")
+			// Program.Send(logMsg{msg: fmt.Sprint("Need to install react-native-cli (y/n): ", option), remove: true})
+			// fmt.Print("Need to install react-native-cli (y/n): ")
+			if err := reactNativeFunc(m.cursor, "App"); err != nil {
+				return installError{errMsg: err.Error()}
+			}
 		case "react":
 			fmt.Println("hello there react")
 
@@ -102,11 +107,22 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "enter":
 			if m.done {
+
 				return m, nil
 			}
 			m.done = true
 			return m, m.installDependencies(m.choices[m.cursor])
+		default:
+			// Append typed characters to the input string
+			if m.done {
+				m.input += msg.String()
+				// Program.Send(logMsg{msg: m.progressString[len(m.progressString)-1] + m.input, remove: true})
+				fmt.Print(m.input)
+				return m, nil
+			}
+
 		}
+
 	case installDoneMsg:
 		m.successMessage = "\n\nDependencies installed!\n\n"
 		m.quitFlag = true

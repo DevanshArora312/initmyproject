@@ -20,8 +20,7 @@ var mernCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		Program = tea.NewProgram(initialModel([]string{
 			"Base Project",
-			"Base Project + Packages",
-			"Base Project + Redux + Packages",
+			"Base Project + Packages + Tailwind",
 			"Base Project + Redux + Packages + Tailwind",
 			"Base Project + Redux + Packages + Tailwind + MUI",
 			"Base Project + Redux + Packages + Tailwind + Antd",
