@@ -25,8 +25,7 @@ var reactCmd = &cobra.Command{
 			"Base Project + Tailwind + Packages",
 			"Base Project + Redux + Packages + Tailwind",
 			"Base Project + Redux + Packages + Tailwind + MUI",
-			"Base Project + Redux + Packages + Tailwind + Andt",
-			"Base Project + Redux + Packages + Tailwind + Shadcn"}, "react", projectname))
+			"Base Project + Redux + Packages + Tailwind + Andt"}, "react", projectname))
 		if _, err := Program.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)

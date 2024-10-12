@@ -159,13 +159,6 @@ func reactFunc(index int, name string) error {
 		var antd = commandType{command: "npm install antd --save", typ: "exec"}
 		newComm := append(commands, antd)
 		return executeGeneral(newComm)
-	case 6:
-		var shadcn = []commandType{
-			{command: "", typ: "exec"},
-		}
-		newComm := append(commands, shadcn...)
-		return executeGeneral(newComm)
-
 	}
 	return nil
 }
@@ -207,15 +200,6 @@ func mernFunc(index int, name string) error {
 	case 4:
 		commands = append(commands, reactCommands...)
 		commands := append(commands, commandType{command: "npm install antd --save", typ: "exec"})
-		commands = append(commands, commandType{command: "/" + name, typ: "cd"})
-		commands = append(commands, backCommands...)
-		return executeGeneral(commands)
-	case 5:
-		commands = append(commands, reactCommands...)
-		var shadcn = []commandType{
-			{command: "", typ: "exec"},
-		}
-		commands := append(commands, shadcn...)
 		commands = append(commands, commandType{command: "/" + name, typ: "cd"})
 		commands = append(commands, backCommands...)
 		return executeGeneral(commands)
