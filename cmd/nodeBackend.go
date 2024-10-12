@@ -22,7 +22,7 @@ var nodeBackendCmd = &cobra.Command{
 			"Base Project",
 			"Base Project + Packages",
 			"Base Project + Mongoose + Packages",
-			"Base Project + Mongoose + Packages + Files & Folder"}, "nodeBackend")
+			"Base Project + Mongoose + Packages + Files & Folder"}, "nodeBackend", "server")
 		Program = tea.NewProgram(mod)
 		if _, err := Program.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)

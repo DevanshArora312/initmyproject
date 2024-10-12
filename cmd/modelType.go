@@ -20,6 +20,7 @@ type model struct {
 	done           bool
 	progressString []string
 	input          string
+	projectName    string
 }
 
 type logMsg struct {
@@ -56,21 +57,21 @@ func (m model) installDependencies(option string) tea.Cmd {
 		Program.Send(logMsg{msg: fmt.Sprintf("Installing dependencies for %s...\n", option), remove: true})
 		switch m.command {
 		case "mern":
-			if err := mernFunc(m.cursor, "myProject"); err != nil {
+			if err := mernFunc(m.cursor, m.projectName); err != nil {
 				return installError{errMsg: err.Error()}
 			}
 		case "nodeBackend":
-			if err := nodeBackendFunction(m.cursor); err != nil {
+			if err := nodeBackendFunction(m.cursor, m.projectName); err != nil {
 				return installError{errMsg: err.Error()}
 			}
 		case "reactNative":
 			// Program.Send(logMsg{msg: fmt.Sprint("Need to install react-native-cli (y/n): ", option), remove: true})
 			// fmt.Print("Need to install react-native-cli (y/n): ")
-			if err := reactNativeFunc(m.cursor, "App"); err != nil {
+			if err := reactNativeFunc(m.cursor, m.projectName); err != nil {
 				return installError{errMsg: err.Error()}
 			}
 		case "react":
-			if err := reactFunc(m.cursor, "myproject"); err != nil {
+			if err := reactFunc(m.cursor, m.projectName); err != nil {
 				return installError{errMsg: err.Error()}
 			}
 		}
@@ -182,13 +183,14 @@ func (m model) View() string {
 	return s
 }
 
-func initialModel(opts []string, _command string) model {
+func initialModel(opts []string, _command string, name string) model {
 	return model{
 		choices:        opts,
 		selected:       make(map[int]struct{}),
 		command:        _command,
 		done:           false,
 		progressString: []string{},
+		projectName:    name,
 	}
 }
 

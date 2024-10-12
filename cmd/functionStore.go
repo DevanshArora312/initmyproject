@@ -87,14 +87,14 @@ func executeGeneral(commands []commandType) error {
 	return nil
 }
 
-func nodeBackendFunction(index int) error {
+func nodeBackendFunction(index int, name string) error {
 	var err error
 	cwd, err = os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	commands := backendCommands("server")
+	commands := backendCommands(name)
 
 	switch index {
 	case 0:

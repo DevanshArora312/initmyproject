@@ -28,7 +28,7 @@ func backendCommands(projName string) []commandType {
 
 func reactNativeCommands(projName string) []commandType {
 	if projName == "" {
-		projName = "MyProject"
+		projName = "MyApp"
 	}
 	return []commandType{
 		{command: "npm i -g @react-native-community/cli", typ: "exec"},
